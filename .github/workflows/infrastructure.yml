@@ -1,4 +1,4 @@
-name: Infrastructure Pipeline
+name: Infrastructure CI/CD
 
 on:
   push:
@@ -26,15 +26,19 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Terraform Init
-        run: terraform init
-
       - name: Terraform Format
         run: terraform fmt -check
+        working-directory: ./terraform
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: ./terraform
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master'
         run: terraform apply -auto-approve
+        working-directory: ./terraform
