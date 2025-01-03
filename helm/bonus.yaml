@@ -1,0 +1,20 @@
+replicaCount: 2
+
+image:
+  repository: ${ECR_REPO}/counter-service
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 443
+
+namespace: counter-service
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
