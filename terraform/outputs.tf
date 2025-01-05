@@ -15,5 +15,5 @@ output "region" {
 
 output "cluster_name" {
   description = "EKS cluster name"
-  value       = module.eks.cluster_name
+  value       = module.eks.cluster_id  # Note: changed from cluster_name to cluster_id
 }
