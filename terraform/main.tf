@@ -19,20 +19,40 @@ module "vpc" {
   tags = var.tags
 }
 
+# Use local-exec to check if log group exists and store result
+resource "null_resource" "check_log_group" {
+  provisioner "local-exec" {
+    command = <<EOT
+      exists=$(aws logs describe-log-groups --log-group-name-prefix "/aws/eks/${var.cluster_name}/cluster" --query 'logGroups[0].logGroupName' --output text)
+      if [ "$exists" != "None" ]; then
+        echo "true" > log_group_exists.txt
+      else
+        echo "false" > log_group_exists.txt
+      fi
+    EOT
+  }
+}
+
+# Read the result file
+data "local_file" "log_group_exists" {
+  depends_on = [null_resource.check_log_group]
+  filename   = "log_group_exists.txt"
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.0.0" # Specify a version
+  version = "19.0.0"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
-
-  # Conditionally create log group based on existence
-  create_cloudwatch_log_group = try(data.aws_cloudwatch_log_group.eks[0].name, "") == "" ? true : false
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
   cluster_endpoint_public_access = true
+
+  # Use the result to conditionally create log group
+  create_cloudwatch_log_group = trimspace(data.local_file.log_group_exists.content) == "false"
 
   eks_managed_node_groups = {
     default = {
