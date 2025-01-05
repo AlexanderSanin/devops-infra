@@ -26,6 +26,9 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
+  # Conditionally create log group based on existence
+  create_cloudwatch_log_group = try(data.aws_cloudwatch_log_group.eks[0].name, "") == "" ? true : false
+
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
