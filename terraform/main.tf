@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "5.0.0"
 
   name = "${var.environment}-vpc"
@@ -21,7 +21,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "19.0.0"  # Specify a version
+  version = "19.0.0" # Specify a version
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
